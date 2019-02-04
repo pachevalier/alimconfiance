@@ -1,0 +1,46 @@
+---
+title: "Suivi des contrôles Alim Confiance"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r, echo=FALSE, message=FALSE}
+library(tidyverse)
+library(lubridate)
+library(DT)
+table_count_satisfaction <- read_csv("data-raw/table_count_satisfaction.csv")
+```
+
+* Mis à jour le `r today()`.
+
+## Part des contrôles satisfaisants
+
+```{r, echo=FALSE, results='markup'}
+table_count_satisfaction %>% 
+  group_by(Synthese_eval_sanit) %>%
+  summarise(n = sum(n)) %>%
+  mutate(share = 100 * n / sum(n)) %>%
+  datatable()
+```
+
+## Evolution des contrôles
+
+```{r echo=FALSE}
+table_count_satisfaction %>%
+  mutate(
+    date = ymd(date)
+    ) %>%
+  group_by(date) %>%
+  summarise(n = sum(n)) %>%
+  ggplot() + 
+  geom_point(mapping = aes(x = date, y = n)) + 
+  scale_x_date() + 
+  scale_y_continuous()
+```
+
+
+## Pour aller plus loin
+
+* [Source des données](http://data.cquest.org/alim_confiance/)
