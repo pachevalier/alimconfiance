@@ -40,6 +40,38 @@ table_count_satisfaction %>%
   scale_y_continuous()
 ```
 
+## Evolution de la part des contrôles
+
+```{r}
+table_count_satisfaction %>%
+  mutate(
+    date = ymd(date),
+    month_year = ymd(paste(year(date), month(date), "01", sep = "-"))
+    ) %>%
+  group_by(Synthese_eval_sanit, month_year) %>%
+  summarise(n = sum(n)) %>%
+  group_by(month_year) %>%
+  mutate(share = 100 * n/sum(n)) %>%
+  ggplot() + 
+  geom_point(
+    mapping = aes(x = month_year, y = share)
+  ) + 
+  facet_wrap(~ Synthese_eval_sanit)
+```
+
+```{r}
+table_count_satisfaction %>%
+  mutate(
+    date = ymd(date),
+    month_year = ymd(paste(year(date), month(date), "01", sep = "-"))
+    ) %>%
+  group_by(Synthese_eval_sanit, month_year) %>%
+  summarise(n = sum(n)) %>%
+  group_by(month_year) %>%
+  mutate(share = 100 * n/sum(n)) %>%
+  datatable()
+```
+
 ## Pour aller plus loin
 
 * [Code source](https://github.com/pachevalier/alimconfiance)
