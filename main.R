@@ -1,5 +1,6 @@
 library(tidyverse)
 library(lubridate)
+
 table_count_satisfaction <- list.files(path = "data-raw/", pattern = "export\\_alimconfiance\\_.*.csv") %>%
   map(
     .x = ., 
@@ -15,10 +16,9 @@ table_count_satisfaction <- list.files(path = "data-raw/", pattern = "export\\_a
       }, quiet = TRUE)
     ) %>%
   map_df("result")
-write_csv(x = table_count_satisfaction, "data-raw/table_count_satisfaction.csv")
+write_csv(x = table_count_satisfaction, "data/table_count_satisfaction.csv")
 
-
-table_count_satisfaction <- read_csv("data-raw/table_count_satisfaction.csv")
+table_count_satisfaction <- read_csv("data/table_count_satisfaction.csv")
 
 table_count_satisfaction %>% 
   group_by(Synthese_eval_sanit) %>%
@@ -44,8 +44,6 @@ table_count_satisfaction %>%
   scale_x_date() + 
   scale_y_continuous()
 
-
-
-
+  
 
 

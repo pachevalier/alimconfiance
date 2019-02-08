@@ -9,8 +9,10 @@ output:
 ```{r, echo=FALSE, message=FALSE}
 library(tidyverse)
 library(lubridate)
+library(scales)
+library(tidyr)
 library(DT)
-table_count_satisfaction <- read_csv("data-raw/table_count_satisfaction.csv")
+table_count_satisfaction <- read_csv("data/table_count_satisfaction.csv")
 ```
 
 * Mis à jour le `r today()`.
@@ -25,7 +27,7 @@ table_count_satisfaction %>%
   datatable()
 ```
 
-## Evolution des contrôles
+## Evolution du nombre de contrôles
 
 ```{r echo=FALSE}
 table_count_satisfaction %>%
@@ -40,9 +42,9 @@ table_count_satisfaction %>%
   scale_y_continuous()
 ```
 
-## Evolution de la part des contrôles
+## Evolution des évaluations par mois
 
-```{r}
+```{r echo=FALSE}
 table_count_satisfaction %>%
   mutate(
     date = ymd(date),
@@ -56,20 +58,27 @@ table_count_satisfaction %>%
   geom_point(
     mapping = aes(x = month_year, y = share)
   ) + 
-  facet_wrap(~ Synthese_eval_sanit)
+  facet_wrap(~ Synthese_eval_sanit) + 
+  scale_y_continuous(name = "%") + 
+  scale_x_date(name = "Date", date_breaks = "6 months")
 ```
 
-```{r}
+### Données détaillées
+
+```{r echo=FALSE}
 table_count_satisfaction %>%
-  mutate(
-    date = ymd(date),
-    month_year = ymd(paste(year(date), month(date), "01", sep = "-"))
+    mutate(
+      date = ymd(date),
+      month_year = ymd(paste(year(date), month(date), "01", sep = "-"))
     ) %>%
-  group_by(Synthese_eval_sanit, month_year) %>%
-  summarise(n = sum(n)) %>%
-  group_by(month_year) %>%
-  mutate(share = 100 * n/sum(n)) %>%
-  datatable()
+    group_by(Synthese_eval_sanit, month_year) %>%
+    summarise(n = sum(n)) %>%
+    group_by(month_year) %>%
+    mutate(share = n/sum(n)) %>% 
+    select(Synthese_eval_sanit, share, month_year) %>%
+    spread(key = Synthese_eval_sanit, value = share) %>%
+    datatable() %>%
+    formatPercentage(columns = ~ `A améliorer` + `A corriger de manière urgente` + Satisfaisant + `Très satisfaisant`, 2)
 ```
 
 ## Pour aller plus loin
